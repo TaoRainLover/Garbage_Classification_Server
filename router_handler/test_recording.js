@@ -53,3 +53,17 @@ exports.history = (req, res) => {
     })
   })
 }
+
+// count -- 查询总的答题次数
+exports.count = (req, res) => {
+  const openid = req.body.openid
+  const sql = `select count(id) as count from test_record where openid = ?`
+  db.query(sql,openid, (err, results) => {
+    if(err)  return res.cc(err)
+    res.send({
+      status: 0,
+      msg: '获取答题测试次数数据成功',
+      count: results[0].count
+    })
+  })
+}

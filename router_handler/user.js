@@ -4,30 +4,8 @@ const miniprogramConfig = require('../miniprogramConfig')
 const db = require('../db/index')
 var qs = require('querystring')
 
-// init -- 初始化
-const init = (req, res, openid) => {
-  // 1. 初始化用户表
-  const sql1 = `insert into users (openid) value (?)`
-  db.query(sql1, openid, (err, results) => {
-    if (err) return res.cc(err)
-    if (results.affectedRows !== 1) return res.cc('初始化用户信息失败')
-    // 初始化用户表成功
-    return res.cc({
-      status: 0,
-      msg: '用户初次登录，初始化用户信息成功！',
-      data: {
-        openid,
-      }
-    })
-  }) 
-  
-  
-  res.send('初始化成功')
-}
-
 // info -- 查询用户的信息
 const info = (req, res) => {
-  console.log(req.body)
   const openid =req.body.openid
   const sql = 'select * from users where openid=?'
   db.query(sql, openid, (err, results) => {
@@ -41,13 +19,13 @@ const info = (req, res) => {
     res.send({
       status: 0,
       message: '获取用户基本信息成功！',
-      data: results[0],
+      userInfo: results[0],
     })
   })
 }
 
 // login -- 登陆
-exports.login = (req, res) => {
+exports.login = async function(req, res){
   // 请求地址
   // GET https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code
   // appid: wxe9cd601820bec490
@@ -57,25 +35,55 @@ exports.login = (req, res) => {
   const code = req.body.code
   // code = '123'
 
-  // TODO:2. 换取用户的 openid 
+  // 2. 换取用户的 openid 
   requestUrl = `https://api.weixin.qq.com/sns/jscode2session?appid=${miniprogramConfig.appid}&secret=${miniprogramConfig.secret}&js_code=${code}&grant_type=authorization_code`
-  console.log(requestUrl)
-  // axios.get('https://api.weixin.qq.com/sns/jscode2session', )
+  // console.log(requestUrl)
+  const {data} = await axios.get(requestUrl)
+  // console.log(data)
+  
+  // res.send(data)
+  const openid = data.openid
+
 
   // 3.相关的业务代码 -- 查询用户的信息
   sql = `select * from users where openid=?`
-  db.query(sql, [userInfo.uid], (err, results) => {
+  db.query(sql, [openid], (err, results) => {
     if(err) return res.cc(err)
-    if (results.length !== 0){
+    if (results.length === 0){
       // 3.1 查询该用户在数据库的信息，若不存在该用户的信息，表明该用户第一次使用小程序，需要初始化用户的信息
-      init(req, res, openid)
+      // 1. 初始化用户表
+      const sql1 = `insert into users (openid) value (?)`
+      db.query(sql1, openid, (err, results) => {
+        if (err) return res.cc(err)
+        if (results.affectedRows !== 1) return res.cc('初始化用户信息失败')
+        // 初始化用户表成功
+        return res.send({
+          status: 0,
+          msg: '用户初次登录，初始化用户信息成功！',
+          userInfo: {
+            openid: openid,
+            nickName: null,
+            avatarUrl: null,
+            credit: 0,
+            cur_medal: "萌新报道",
+            id: 11,
+            openid: "o_McM5oh6-Sd2OpaOZyh0XmqPYU4",
+            owned_medal_list: "萌新报道",
+            status: 0,
+            total_score: 0,
+          }
+        })
+      }) 
+
+    }else {
+      
+      // 3.2若用户存在,返回用户的信息
+      res.send({
+        status: 0,
+        msg: '登陆成功',
+        userInfo: results[0]
+      })
     }
-    // 3.2若用户存在,返回用户的信息
-    res.send({
-      status: 0,
-      msg: '登陆成功',
-      data: results[0]
-    })
   })
 }
 

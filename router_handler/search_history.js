@@ -42,3 +42,17 @@ exports.history_before = (req, res) => {
     })
   })
 }
+
+exports.count = (req, res) => {
+  const openid = req.body.openid
+  const sql =  'select count(id) as count from search_record where openid = ?'
+  db.query(sql, openid, (err, results) => {
+    if(err) return res.cc(err)
+    res.send({
+      status: 0,
+      msg: '查询用户的搜索条数成功',
+      count: results[0].count
+    })
+  })
+  // res.send(openid)
+}

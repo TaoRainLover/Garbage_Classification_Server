@@ -6,5 +6,6 @@ const trRouter = express.Router()
 
 trRouter.post('/add', trHandler.add)
 trRouter.post('/history', trHandler.history)
+trRouter.post('/count', trHandler.count)
 
 module.exports = trRouter

@@ -10,4 +10,6 @@ SH_Router.post('/today', SH_Handler.history_today)
 
 SH_Router.post('/before', SH_Handler.history_before)
 
+SH_Router.post('/count', SH_Handler.count)
+
 module.exports = SH_Router
