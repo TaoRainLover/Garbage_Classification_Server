@@ -2,7 +2,6 @@ const db = require('../db/index')
 
 // add -- 用户添加新的勋章
 exports.exchange = (req, res) => {
-  // res.send('medal add api')
   const openid = req.body.openid
   const medal_name = req.body.name
   const credit = req.body.credit
@@ -82,6 +81,20 @@ exports.update = (req, res) => {
         openid,
         name
       }
+    })
+  })
+}
+
+// lists -- 列出系统所有的勋章数据
+exports.lists = (req, res) => {
+  const sql = `select name, credit from medal_list`
+  db.query(sql, (err, results) => {
+    if(err) return res.cc(err)
+    if(results.length === 0) return res.cc('获取系统所有的勋章数据失败')
+    res.send({
+      status: 0,
+      msg: '获取系统所有勋章数据成功',
+      list: results
     })
   })
 }

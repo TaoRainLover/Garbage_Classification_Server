@@ -8,7 +8,7 @@ const userRouter = express.Router()
 
 // 定义用户模块相应的api
 userRouter.post('/login', userHandler.login)
-userRouter.post('/signIn', userHandler.signIn)
+userRouter.post('/signin', userHandler.signIn)
 userRouter.post('/info', userHandler.info)
 userRouter.post('/update', userHandler.update)
 

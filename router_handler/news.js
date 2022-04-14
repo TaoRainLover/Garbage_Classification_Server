@@ -1,16 +1,23 @@
 const db = require('../db/index')
-
+const my_date = require('../utils/my_date')
 // lists -- 查询新闻列表消息
 exports.lists = (req, res) => { 
   // res.send('news lists api')
-  const sql = 'select id, title, date,cover_path, count_viewed from news order by date desc'
-  db.query(sql, (err, results) => {
+  // 页面 -- 从1开始
+  const page = req.body.page
+  // 每次获取数量为 8 
+  const count = 8
+  const offset = (page - 1)*count
+  const sql = 'select id, title, date,cover_path, count_viewed from news order by date desc limit ? offset ?'
+  db.query(sql, [count, offset], (err, results) => {
     if (err) return res.cc(err)
     if (results.length === 0) return res.cc('未查询到新闻列表数据')
+    // 对时间进行处理
+    results = my_date.date_format1(results)
     res.send({
       status: 0,
       msg: '获取到新闻列表数据',
-      data: results
+      lists: results
     })
   })
 }
@@ -31,10 +38,12 @@ exports.item = (req, res) => {
       if (err) return res.cc(err)
       // 更新浏览数量失败
       if (results2.affectedRows !== 1) return res.cc('查询新闻数据失败')
+      // 设置时间格式
+      const info = my_date.date_format2(results[0])
       res.send({
         status: 0,
         msg: '查询新闻数据成功！',
-        data:results[0]
+        info: info,
       })
     })
     

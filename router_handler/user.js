@@ -90,7 +90,6 @@ exports.login = async function(req, res){
 // signIn -- 签到（改为积分）
 exports.signIn = (req, res) => {
   const openid = req.body.openid
-  const credit = 10
   // 1. 查询该用户的 积分 数量
   const sql = `select credit from users where openid=?`
   db.query(sql, openid, (err, results) => {

@@ -14,6 +14,8 @@ exports.list_common = (req, res)=>{
   const table = 'garbage_collection1'
   const page = req.body.page // 从 1 开始
   const type = req.body.type
+  // 1.可回收物
+  // 2.
   const count = 30 // 每次查询数据的条数
   const offset = (page - 1)*count
   const sql = "select name from "+table+" where type=? limit ? offset ?"
@@ -113,7 +115,7 @@ exports.test_list = (req, res) => {
     res.send({
       status: 0,
       msg: '获取试题列表数据成功',
-      data: results
+      lists: results
     })
   })
 }

@@ -13,4 +13,7 @@ medalRouter.post('/query', medalHandler.query)
 // update -- 更新用户当前佩戴的勋章
 medalRouter.post('/update', medalHandler.update)
 
+// lists -- 获取系统所有的勋章数据
+medalRouter.post('/lists', medalHandler.lists)
+
 module.exports = medalRouter
