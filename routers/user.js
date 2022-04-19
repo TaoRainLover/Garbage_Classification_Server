@@ -11,7 +11,8 @@ userRouter.post('/login', userHandler.login)
 userRouter.post('/signin', userHandler.signIn)
 userRouter.post('/info', userHandler.info)
 userRouter.post('/update', userHandler.update)
-
+userRouter.post('/st', userHandler.sigin_today)
+userRouter.post('/swr', userHandler.sigin_week_record)
 
 // 导出用户路由模块实例
 module.exports = userRouter

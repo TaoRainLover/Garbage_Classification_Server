@@ -1,5 +1,5 @@
 const db = require('../db/index')
-
+const my_date = require('../utils/my_date')
 // add -- 添加一条答题记录
 exports.add = (req, res) => {
   res.send('search_history add api')
@@ -11,15 +11,17 @@ exports.add = (req, res) => {
 exports.history_today = (req, res) => {
   // res.send('search_history history api')
   const openid = req.body.openid
-  const sql = `select * from search_record where openid = ? and to_days(date) = to_days(now())`
+  const sql = `select * from search_record where openid = ? and to_days(date) = to_days(now()) order by date desc`
   db.query(sql, openid, (err, results) => {
     // 查询失败
     if (err) return res.cc(err)
     if (results.length === 0) return res.cc('未查询到该用户的数据')
     // 查询成功
+    results = my_date.date_format1(results)
+
     res.send({
       status: 0,
-      msg: '查询用户搜索数据成功',
+      msg: '查询用户搜索数据成功(today)',
       data: results
     })
   })
@@ -29,15 +31,19 @@ exports.history_today = (req, res) => {
 // history_before -- 查询用户更早的搜索记录（除去今日的）
 exports.history_before = (req, res) => {
   const openid = req.body.openid
-  const sql = `select * from search_record where openid = ? and to_days(date) != to_days(now())`
+  const sql = `select * from search_record where openid = ? and to_days(date) != to_days(now()) order by date desc`
   db.query(sql, openid, (err, results) => {
     // 查询失败
     if (err) return res.cc(err)
     if (results.length === 0) return res.cc('未查询到该用户的数据')
     // 查询成功
+
+    // 转换时间格式
+    results = my_date.date_format1(results)
+
     res.send({
       status: 0,
-      msg: '查询用户搜索数据成功',
+      msg: '查询用户搜索数据成功(before)',
       data: results
     })
   })

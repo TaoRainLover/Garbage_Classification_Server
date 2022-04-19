@@ -104,7 +104,7 @@ exports.signIn = (req, res) => {
       if (results.affectedRows !== 1) res.cc('更新用户积分失败')
       // 3. 添加一条积分记录
       const sql3 = `insert into credit_record (openid, type, credit, is_add) values (?, ?, ?, 1)`
-      db.query(sql3, [openid, '用户签到', 15], (err, results) => {
+      db.query(sql3, [openid, '签到奖励', 15], (err, results) => {
         if (err) return res.cc(err)
         if (results.affectedRows !== 1) return res.cc('签到信息插入积分表失败')
         res.cc('签到成功', status=0)
@@ -132,3 +132,43 @@ exports.update = (req, res) => {
   })
 }
 
+// sigin_record -- 获取用户这周的签到记录 
+exports.sigin_week_record = (req, res) => {
+  const openid = req.body.openid
+
+  const sql = `SELECT distinct DAYOFWEEK(date)-1 as day_of_week, type, openid FROM credit_record WHERE YEARWEEK(date_format(date,'%Y-%m-%d')) = YEARWEEK(now()) and openid=? and type='签到奖励';`
+
+  db.query(sql, openid, (err, results) => {
+    if(err) return res.cc(err)
+    if(results.length == 0){
+      return res.send({
+        status: 0,
+        msg: '未查询到本周的签到信息'
+      })
+    }
+    res.send({
+      status: 0,
+      msg: '查询到本周的签到信息',
+      data: results
+    })
+  })
+}
+
+// sigin_today -- 判断用户今日是否完成签到
+exports.sigin_today = (req, res) => {
+  const openid = req.body.openid
+
+  const sql = `select id from credit_record where openid=? and type='签到奖励' and to_days(date) = to_days(now())`
+
+  db.query(sql, openid, (err, results) => {
+    if(err) return res.cc(err)
+    // 结果条数大于 0, 说明用户已经签到
+    if(results.length > 0) return res.cc('用户已签到', status = 0)
+
+    res.send({
+      status: 0,
+      msg: '用户今日暂未签到'
+    })
+  })
+
+}

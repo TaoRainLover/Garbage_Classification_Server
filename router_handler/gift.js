@@ -4,7 +4,7 @@ const db = require('../db/index.js')
 // lists -- 查询礼品数据
 exports.lists = (req, res) => {
   // res.send('gift lists api')
-  const sql = 'select * from gift_list'
+  const sql = 'select * from gift_list order by credit'
   db.query(sql, (err, results) => {
     if(err) return res.cc(err)
     if (results.length === 0) return res.cc('查询礼品数据失败！')

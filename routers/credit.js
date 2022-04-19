@@ -8,4 +8,8 @@ creditRouter.post('/add', creditHandler.add)
 
 creditRouter.post('/history', creditHandler.history)
 
+creditRouter.post('/ha', creditHandler.history_add)
+
+creditRouter.post('/hd', creditHandler.history_des)
+
 module.exports = creditRouter

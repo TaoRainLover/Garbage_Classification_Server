@@ -34,16 +34,32 @@ exports.list_common = (req, res)=>{
 // 模糊查询，查询所有包含带有搜索词的垃圾
 exports.query = (req, res) => {
   let name = req.body.name
+  let openid = req.body.openid
+
+  // 1. 匹配搜索结果
   const sql = "select name, type from garbage_collection1 where name like ?;"
-  name = '%'+name+'%'
-  db.query(sql, name, (err, results) => {
+  search_name = '%'+name+'%'
+  db.query(sql, search_name, (err, results) => {
     if(err) return res.cc(err)
     if (results.length === 0) return res.cc('未匹配到相关的信息，请换个搜索词再试')
-    res.send({
-      status: 0,
-      msg: '匹配到相关的数据',
-      data: results
+
+    // 2.插入一条搜索数据
+    const sql2 = `insert into search_record (openid, name, num_res) values (?, ?, ?)`
+    db.query(sql2, [openid, name, results.length], (err, results2) => {
+      if(err) return res.cc(err)
+      if(results2.affectedRows !== 1) return res.send({
+        status: 0,
+        msg: '匹配到相关的数据,但插入搜索记录失败',
+        data: results
+      })
+      res.send({
+        status: 0,
+        msg: '匹配到相关的数据,且插入搜索记录成功',
+        data: results
+      })
     })
+
+    
   })
 }
 
@@ -70,11 +86,17 @@ exports.query_img = async function(req, res){
   const access_token = data.access_token
   const { data:results } = await axios.post('https://aip.baidubce.com/rest/2.0/image-classify/v2/advanced_general?access_token=' + access_token, qs.stringify(imgData))
   
-  // console.log(results) 
+  const resList = results.result
+  // 对返回的数据进行处理
+  // console.log(resList)
+  for(let i=0; i<resList.length; i++){
+    resList[i].score =  Math.floor(resList[i].score * 1000) / 10
+    resList[i].status = false
+  }
   res.send({
     stutas: 0,
     msg: '查询成功',
-    data: results
+    data: resList
   })
   
 }
