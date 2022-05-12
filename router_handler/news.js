@@ -8,7 +8,7 @@ exports.lists = (req, res) => {
   // 每次获取数量为 8 
   const count = 8
   const offset = (page - 1)*count
-  const sql = 'select id, title, date,cover_path, count_viewed from news order by date desc limit ? offset ?'
+  const sql = 'select * from news order by date desc limit ? offset ?'
   db.query(sql, [count, offset], (err, results) => {
     if (err) return res.cc(err)
     if (results.length === 0) return res.cc('未查询到新闻列表数据')
@@ -50,3 +50,45 @@ exports.item = (req, res) => {
   })
 }
 
+
+// add --- 添加一条新闻文章
+exports.add = (req, res) => {
+  const title = req.body.title
+  const content = req.body.content
+  const source = req.body.source
+  const link = req.body.link
+  const cover_path = req.body.cover_path
+  const type = req.body.type
+
+  const sql = `insert into news (title, content, cover_path, source, link, type) values (?,?, ?, ?,?, ?)`
+
+  db.query(sql, [title, content, cover_path, source, link, type], (err, results) => {
+    if(err) return res.cc(err)
+    if(results.affectedRows !== 1) return res.cc('添加新闻文章数据失败')
+
+    res.send({
+      status: 0,
+      msg: '添加新闻文章数据成功'
+    })
+  })
+}
+
+exports.query = (req, res) => {
+  // type: 查询方式
+  const type = req.body.type
+  const info =  '%' +req.body.info+'%'
+
+  const sql = 'select * from news where '+type+' like ? order by date desc'
+
+  db.query(sql,[info], (err, results) => {
+    if(err) return res.cc(err)
+
+    if(results.length === 0) return res.cc('未查询到相关信息', status = 0)
+
+    res.send({
+      status: 0,
+      msg: '查询到相关的信息',
+      list: results
+    })
+  })
+}

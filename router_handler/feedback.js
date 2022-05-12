@@ -1,5 +1,5 @@
 const db = require('../db/index')
-
+const my_data = require('../utils/my_date')
 exports.submit = (req, res) => {
   // res.send('feedback submit api')
   const openid = req.body.openid
@@ -20,9 +20,48 @@ exports.submit = (req, res) => {
 
 }
 
-// lists -- 管理员查询反馈列表数据
+// lists -- 管理员查询未阅读的反馈列表数据
 // 进行分页查询
-exports.lists = (req, res) => [
-  // res.send('feedback lists api')
-  // const sql = ``
-]
+exports.lists = (req, res) => {
+  const sql = `select * from feedback where is_read = 0 and is_deleted = 0 order by date desc`
+
+  db.query(sql, (err, results) => {
+    if(err) return res.cc(err)
+    results = my_data.date_format4(results)
+    res.send({
+      status: 0,
+      msg: '获取未读消息列表成功',
+      list: results
+    })
+  })
+}
+
+exports.lists_read = (req, res) => {
+  const sql = `select * from feedback where is_read = 1 and is_deleted = 0 order by date desc`
+
+  db.query(sql, (err, results) => {
+    if(err) return res.cc(err)
+    results = my_data.date_format4(results)
+    
+    res.send({
+      status: 0,
+      msg: '获取已读消息列表成功',
+      list: results
+    })
+  })
+}
+
+exports.lists_deleted = (req, res) => {
+  const sql = `select * from feedback where is_deleted = 1 order by date desc`
+
+  db.query(sql, (err, results) => {
+    if(err) return res.cc(err)
+    results = my_data.date_format4(results)
+
+    res.send({
+      status: 0,
+      msg: '获取删除列表成功',
+      list: results
+    })
+  })
+}

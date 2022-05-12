@@ -4,7 +4,7 @@
 const db = require('../db/index')
 const axios = require('axios')
 const qs = require('querystring')
-
+const my_date = require('../utils/my_date')
 // list-common -- 查询对应垃圾类别常见的一些生活垃圾
 // 要求：使用分页查询-
 // 参数1 -- 页码
@@ -138,6 +138,74 @@ exports.test_list = (req, res) => {
       status: 0,
       msg: '获取试题列表数据成功',
       lists: results
+    })
+  })
+}
+
+
+// add -- 添加一条新的垃圾分类信息
+exports.add = (req, res) => {
+  const type = req.body.type
+  const name = req.body.name
+  // 查询数据库中是否已经存在
+  const sql1 = `select * from garbage_collection1 where name = ?`
+  db.query(sql1, name, (err, results) => {
+    if(err) return res.cc(err)
+    if(results.length > 0) return res.cc('数据库中已存在')
+    // 添加
+    const sql2 = `insert into garbage_collection1 (name, type) values (?, ?)`
+    db.query(sql2, [name, type], (err, results) => {
+      if(err) return res.cc(err)
+      if(results.affectedRows !== 1) return res.cc('添加失败')
+      res.send({
+        status: 0,
+        msg: '添加成功',
+      })
+    })
+  })
+  
+
+  
+}
+
+
+exports.query_by_text = (req, res) => {
+  const text = '%'+req.body.name+'%'
+
+  const sql = 'select * from garbage_collection1 where name like ?'
+
+  db.query(sql, text, (err, results) => {
+    if(err) return res.cc(err)
+    if(results.length === 0) return res.cc('未查询到相关信息')
+    results = my_date.date_format5(results)
+    res.send({
+      status: 0,
+      msg: '查询到相关的垃圾数据信息',
+      list: results
+    })
+  })
+}
+
+
+// query_by_type -- 按照类别进行分页查询
+exports.query_by_type = (req, res) => {
+  const type = req.body.type
+  const pageIndex = req.body.pageIndex
+  
+  const pageSize = req.body.pageSize
+
+  const offset = (pageIndex -1) * pageSize
+  
+  const sql = 'select * from garbage_collection1 where type=? limit '+pageSize+' offset ?'
+
+  db.query(sql, [type, offset], (err, results) => {
+    if(err) return res.cc(err)
+    if(results.length === 0) return res.cc('未查询到相关信息')
+    results = my_date.date_format5(results)
+    res.send({
+      status: 0,
+      msg: '查询到相关的垃圾数据信息',
+      list: results
     })
   })
 }

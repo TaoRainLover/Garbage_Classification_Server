@@ -81,7 +81,7 @@ server.use((err, req, res, next) => {
 })
 
 
-// 使用 ssl 证书
+// 读入 ssl 证书
 var privateCrt = fs.readFileSync('./my_ssl/full_chain.pem', 'utf8')
 var privateKey = fs.readFileSync('./my_ssl/private.key', 'utf8')
 const HTTPS_OPTOIN = {

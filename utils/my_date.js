@@ -1,6 +1,8 @@
 exports.date_format1 = (arr) => {
   for (let i=0; i<arr.length; i++){
     const date = new Date(arr[i].date)
+    // console.log(date)
+    
     const y = date.getFullYear()+'/'
     const m = date.getMonth()+'/'
     const d = date.getDate()
@@ -9,6 +11,7 @@ exports.date_format1 = (arr) => {
   }
   return arr
 }
+
 
 exports.date_format2 = (obj) => {
   const date = new Date(obj.date)
@@ -21,4 +24,47 @@ exports.date_format2 = (obj) => {
   obj.date = y+m+d+h+mm
   return obj
 
+}
+
+
+exports.date_format3 = (arr) => {
+  for (let i=0; i<arr.length; i++){
+    const date = new Date(arr[i].reg_time)
+    
+    const y = date.getFullYear()+'-'
+    const m = date.getMonth()+'-'
+    const d = date.getDate()+' '
+    const h = date.getHours()+':'
+    const mm = date.getMinutes()
+    arr[i].reg_time = y+m+d+h+mm
+  }
+  return arr
+}
+
+exports.date_format4 = (arr) => {
+  for (let i=0; i<arr.length; i++){
+    const date = new Date(arr[i].date)
+    
+    const y = date.getFullYear()+'-'
+    const m = date.getMonth()+'-'
+    const d = date.getDate()+' '
+    const h = date.getHours()+':'
+    const mm = date.getMinutes()
+    arr[i].date = y+m+d+h+mm
+  }
+  return arr
+}
+
+exports.date_format5 = (arr) => {
+  for (let i=0; i<arr.length; i++){
+    const date = new Date(arr[i].create_time)
+    
+    const y = date.getFullYear()+'-'
+    const m = date.getMonth()+'-'
+    const d = date.getDate()+' '
+    const h = date.getHours()+':'
+    const mm = date.getMinutes()
+    arr[i].create_time = y+m+d+h+mm
+  }
+  return arr
 }

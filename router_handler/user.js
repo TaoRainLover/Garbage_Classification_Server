@@ -2,19 +2,21 @@
 const axios = require('axios');
 const miniprogramConfig = require('../miniprogramConfig')
 const db = require('../db/index')
+const my_date = require('../utils/my_date')
 var qs = require('querystring')
 
 // info -- 查询用户的信息
 const info = (req, res) => {
   const openid =req.body.openid
+  // console.log(openid)
+  
   const sql = 'select * from users where openid=?'
   db.query(sql, openid, (err, results) => {
     // 1. 执行 SQL 语句失败
     if (err) return res.cc(err)
 
     // 2. 执行 SQL 语句成功，但是查询到的数据条数不等于 1
-    if (results.length !== 1) return res.cc('获取用户信息失败！')
-
+    if (results.length === 0) return res.cc('获取用户信息失败！')
     // 3. 将用户信息响应给客户端
     res.send({
       status: 0,
@@ -67,7 +69,6 @@ exports.login = async function(req, res){
             credit: 0,
             cur_medal: "萌新报道",
             id: 11,
-            openid: "o_McM5oh6-Sd2OpaOZyh0XmqPYU4",
             owned_medal_list: "萌新报道",
             status: 0,
             total_score: 0,
@@ -136,7 +137,12 @@ exports.update = (req, res) => {
 exports.sigin_week_record = (req, res) => {
   const openid = req.body.openid
 
-  const sql = `SELECT distinct DAYOFWEEK(date)-1 as day_of_week, type, openid FROM credit_record WHERE YEARWEEK(date_format(date,'%Y-%m-%d')) = YEARWEEK(now()) and openid=? and type='签到奖励';`
+  let sql = `SELECT distinct WEEKDAY(date) as day_of_week, type, openid FROM credit_record WHERE YEARWEEK(date_format(date,'%Y-%m-%d')) = YEARWEEK(now()) and WEEKDAY(date) != 6 and openid=? and type='签到奖励';`
+
+  // 判断今天是否是 周日
+  if(new Date().getDay() == 0) {
+    sql = `SELECT distinct WEEKDAY(date) as day_of_week, openid, type  FROM credit_record WHERE (YEARWEEK(date_format(date,'%Y-%m-%d')) = YEARWEEK(now()) and WEEKDAY(date) =6 and openid=? and type='签到奖励') or (YEARWEEK(date_format(date,'%Y-%m-%d')) = (YEARWEEK(now())-1) and WEEKDAY(date) !=6 and openid='o_McM5oh6-Sd2OpaOZyh0XmqPYU4' and type='签到奖励' );`
+  }
 
   db.query(sql, openid, (err, results) => {
     if(err) return res.cc(err)
@@ -170,5 +176,49 @@ exports.sigin_today = (req, res) => {
       msg: '用户今日暂未签到'
     })
   })
+
+}
+
+// user_list -- 获取用户列表(分页查询)
+exports.user_list = (req, res) => {
+  console.log(req.params)
+  console.log(req.query)
+  console.log(req.body)
+  
+  const index = req.body.pageIndex
+  const size = Number(req.body.pageSize)
+  const offset = (Number(index) - 1)*size
+  const sql = 'select * from users where nickname is not null limit '+size+' offset '+offset
+  db.query(sql, (err, results) => {
+    if (err) return res.cc(err)
+    if(results.length === 0) return res.cc('获取用户列表数据失败')
+    results = my_date.date_format3(results)
+    // console.log(results)
+    
+    return res.send({
+      status: 0,
+      msg: '获取用户列表数据成功',
+      data: results
+    })
+  })
+}
+
+// query -- 通过用户名或openid查询用户信息
+exports.query = (req, res) => {
+  const type = req.body.type
+  const info = '%' +req.body.info+'%'
+
+  const sql = 'select * from users where '+type+' like ?'
+
+  db.query(sql, [info], (err, results) => {
+    if(err) return res.cc(err)
+    if(results.length === 0) return res.cc('查询用户数据失败')
+    res.send({
+      staus: 0,
+      msg: '查询用户数据列表成功',
+      list: results
+    })
+  })
+
 
 }

@@ -13,6 +13,8 @@ userRouter.post('/info', userHandler.info)
 userRouter.post('/update', userHandler.update)
 userRouter.post('/st', userHandler.sigin_today)
 userRouter.post('/swr', userHandler.sigin_week_record)
+userRouter.post('/ul', userHandler.user_list)
+userRouter.post('/query', userHandler.query)
 
 // 导出用户路由模块实例
 module.exports = userRouter
