@@ -181,9 +181,9 @@ exports.sigin_today = (req, res) => {
 
 // user_list -- 获取用户列表(分页查询)
 exports.user_list = (req, res) => {
-  console.log(req.params)
-  console.log(req.query)
-  console.log(req.body)
+  // console.log(req.params)
+  // console.log(req.query)
+  // console.log(req.body)
   
   const index = req.body.pageIndex
   const size = Number(req.body.pageSize)
@@ -208,7 +208,7 @@ exports.query = (req, res) => {
   const type = req.body.type
   const info = '%' +req.body.info+'%'
 
-  const sql = 'select * from users where '+type+' like ?'
+  const sql = 'select * from users where '+type+' like ? and nickname is not null'
 
   db.query(sql, [info], (err, results) => {
     if(err) return res.cc(err)
