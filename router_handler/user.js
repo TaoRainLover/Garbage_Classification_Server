@@ -30,8 +30,8 @@ const info = (req, res) => {
 exports.login = async function(req, res){
   // 请求地址
   // GET https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code
-  // appid: wxe9cd601820bec490
-  // secret: 4abe32267216c0d2147d412d82434c02
+  // appid: 微信小程序 appid
+  // secret: 微信小程序 secret
 
   // 1. 获取用户端的 code 
   const code = req.body.code
